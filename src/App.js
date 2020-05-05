@@ -14,21 +14,27 @@ class App extends Component {
     showPersons: false,
   };
 
-  nameChangedHandler = (event) => {
-    this.setState({
-      persons: [
-        { name: 'Holly Thomas', age: 32, hobbies: 'Writing' },
-        { name: 'Martin Parm', age: 41, hobbies: 'Programming' },
-        { name: event.target.value, age: 11, hobbies: 'Sleeping' },
-      ]
-    });
+  nameChangedHandler = (event, id) => {
+    const personIndex = this.state.persons.findIndex(p => {
+      return p.id === id;
+    })
+
+    const person = { ...this.state.persons[personIndex] };
+    // const person = Object.assign({}, this.state.persons[personIndex]);  <- old method
+
+    person.name = event.target.value;
+
+    const persons = [...this.state.persons];
+    persons[personIndex] = person;
+
+    this.setState({ persons: persons });
   }
 
   deletePersonHandler = (personIndex) => {
-    const persons = this.state.persons.slice();
-    // const persons = [...this.state.persons];   <- Using the spread opperator
+    // const persons = this.state.persons.slice();  <- old method
+    const persons = [...this.state.persons];
     persons.splice(personIndex, 1);
-    this.setState({persons: persons})
+    this.setState({ persons: persons })
   }
 
   togglePersonsHandler = () => {
@@ -55,7 +61,8 @@ class App extends Component {
               click={() => this.deletePersonHandler(index)}
               name={person.name}
               age={person.age}
-              key={person.id} />
+              key={person.id}
+              changed={(event) => this.nameChangedHandler(event, person.id)} />
           })}
         </div>
       )
