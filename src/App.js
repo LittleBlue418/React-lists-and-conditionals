@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import './App.css';
 import Person from './Person/Person';
+import UserInputBox from './UserInputBox/UserInputBox'
+import LetterCard from './LetterCard/LetterCard';
+
 
 
 class App extends Component {
@@ -12,6 +15,8 @@ class App extends Component {
     ],
     otherState: 'Some other value',
     showPersons: false,
+    userText: '',
+    userTextArray: {},
   };
 
   nameChangedHandler = (event, id) => {
@@ -30,11 +35,48 @@ class App extends Component {
     this.setState({ persons: persons });
   }
 
+  userEnteredText = (event) => {
+    const newUsertext = event.target.value;
+
+    const newUserTextArray = []
+    let index = 0;
+
+    for (let letter in event.target.value) {
+      newUserTextArray.push({id: index, letter: event.target.value[letter]})
+      index ++;
+    }
+
+    this.setState(
+      this.state = {
+        userText: newUsertext,
+        userTextArray: newUserTextArray,
+      }
+    )
+  }
+
   deletePersonHandler = (personIndex) => {
     // const persons = this.state.persons.slice();  <- old method
     const persons = [...this.state.persons];
     persons.splice(personIndex, 1);
     this.setState({ persons: persons })
+  }
+
+  deleteLetterCard = (cardIndex) => {
+    const newUserTextArray = [...this.state.userTextArray];
+    const newUserTextHolder = this.state.userText.split("");
+
+    newUserTextArray.splice(cardIndex, 1);
+
+    newUserTextHolder.splice(cardIndex, 1);
+
+    const newUserText = newUserTextHolder.join("");
+
+    this.setState(
+      this.state = {
+        userText: newUserText,
+        userTextArray: newUserTextArray
+      }
+    )
   }
 
   togglePersonsHandler = () => {
@@ -52,6 +94,7 @@ class App extends Component {
     };
 
     let persons = null;
+    let letterCards = null;
 
     if (this.state.showPersons) {
       persons = (
@@ -68,8 +111,29 @@ class App extends Component {
       )
     }
 
+    if (this.state.userTextArray.length > 0) {
+      letterCards = (
+        <div>
+          {this.state.userTextArray.map((letterObject, index) => {
+            return <LetterCard
+              click={() => this.deleteLetterCard(index)}
+              letter={letterObject.letter}
+              key={letterObject.id} />
+          })}
+        </div>
+      )
+    }
+
     return (
       <div className="App">
+
+        <UserInputBox
+          changed={(event) => this.userEnteredText(event)}
+          userText={this.state.userText}
+          length={this.state.userTextArray.length} />
+
+        {letterCards}
+
         <h1>The Fam</h1>
         <button
           style={buttonStyle}
